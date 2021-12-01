@@ -11,8 +11,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'EGP Portfolio',
       theme: ThemeData(
+        canvasColor: const Color.fromRGBO(248, 213, 210, 1),
+
         // This is the theme of your application.
         //
         // Try running your application with "flutter run". You'll see the
@@ -34,6 +36,6 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Center(child: Text("Portfolio Coming Soon!", style: Theme.of(context).textTheme.headline1,)));
+    return Scaffold(body: Center(child: Text("Portfolio Coming Soon!", style: Theme.of(context).textTheme.headline1!.copyWith(fontFamily: 'PalmerLake', color: const Color.fromRGBO(56, 88, 78, 1)),)));
   }
 }
