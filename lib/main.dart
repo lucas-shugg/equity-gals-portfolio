@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'EGP Portfolio',
       theme: ThemeData(
-        canvasColor: const Color.fromRGBO(248, 213, 210, 1),
+        canvasColor: const Color.fromRGBO(254, 238, 227, 1),
 
         // This is the theme of your application.
         //
