@@ -32,7 +32,9 @@ class Header extends StatelessWidget {
               ),
             ),
           ),
-          const Icon(Icons.camera_alt_outlined)
+          IconButton(
+              onPressed: () {},
+              icon: Image.asset("assets/images/instagram.webp"))
         ],
       ),
     );

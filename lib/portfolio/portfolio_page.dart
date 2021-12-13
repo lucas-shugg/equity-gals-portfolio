@@ -33,7 +33,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
     } else {
       _maxContentWidth = 980;
     }
-    print("widht: $width, max : $_maxContentWidth");
+
     return Scaffold(
         body: SingleChildScrollView(
       child: Center(
