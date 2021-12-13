@@ -15,6 +15,11 @@ class EgpPortfolio extends StatelessWidget {
       title: 'EGP Portfolio',
       theme: ThemeData(
         canvasColor: const Color.fromRGBO(254, 238, 227, 1),
+        textTheme: const TextTheme(
+            bodyText1:
+                TextStyle(fontFamily: 'AvenirLight.ttf', color: egpGreen),
+            headline6:
+                TextStyle(fontFamily: 'AvenirLight.ttf', color: egpGreen)),
 
         // This is the theme of your application.
         //
