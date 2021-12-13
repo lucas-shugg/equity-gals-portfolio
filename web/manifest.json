@@ -1,6 +1,6 @@
 {
-    "name": "equity_gals_portfolio",
-    "short_name": "equity_gals_portfolio",
+    "name": "EGP Portfolio",
+    "short_name": "EGP Portfolio",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
