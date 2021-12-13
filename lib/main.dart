@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp(key: Key('value')));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -33,7 +33,8 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatelessWidget {
   const MyHomePage({Key? key}) : super(key: key);
-
+  final Color egpPink = const Color.fromRGBO(242, 11, 249, 1);
+  final Color egpGreen = const Color.fromRGBO(56, 88, 78, 1);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,8 +60,7 @@ class MyHomePage extends StatelessWidget {
                               .textTheme
                               .headline4!
                               .copyWith(
-                                  fontFamily: 'PalmerLake',
-                                  color: const Color.fromRGBO(56, 88, 78, 1)),
+                                  fontFamily: 'PalmerLake', color: egpGreen),
                         ),
                       ),
                       SizedBox(width: 1300, height: 10, child: Container()),
@@ -72,9 +72,7 @@ class MyHomePage extends StatelessWidget {
                           style: Theme.of(context)
                               .textTheme
                               .headline5!
-                              .copyWith(
-                                  fontFamily: 'Impact',
-                                  color: const Color.fromRGBO(242, 11, 249, 1)),
+                              .copyWith(fontFamily: 'Impact', color: egpPink),
                         ),
                       ),
                       const Icon(Icons.camera_alt_outlined)
@@ -90,9 +88,10 @@ class MyHomePage extends StatelessWidget {
                       child: Text(
                         "EGP GROWTH ETF PORTFOLIO",
                         textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.headline2!.copyWith(
-                            fontFamily: 'Impact',
-                            color: const Color.fromRGBO(242, 11, 249, 1)),
+                        style: Theme.of(context)
+                            .textTheme
+                            .headline2!
+                            .copyWith(fontFamily: 'Impact', color: egpPink),
                       ),
                     ),
                   ]),
@@ -107,8 +106,7 @@ class MyHomePage extends StatelessWidget {
                         "EGP's Growth ETF Portfolio has been constructed as an educational resource. The aim is to highlight the importance of diversification, provide examples of ETFs, and to help you understand asset classes and what they mean.",
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.headline6!.copyWith(
-                            fontFamily: 'AvenirLight',
-                            color: const Color.fromRGBO(0, 0, 0, 1)),
+                            fontFamily: 'AvenirLight', color: Colors.black),
                       ),
                     ),
                   ]),
@@ -119,13 +117,12 @@ class MyHomePage extends StatelessWidget {
                     Container(
                       height: 50,
                       width: 300,
-                      color: const Color.fromRGBO(56, 88, 78, 1),
+                      color: egpGreen,
                       child: Text(
                         'LISTEN HERE',
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.headline4!.copyWith(
-                            fontFamily: 'Impact',
-                            color: const Color.fromRGBO(255, 255, 255, 1)),
+                            fontFamily: 'Impact', color: Colors.white),
                       ),
                     )
                   ]),
