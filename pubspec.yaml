@@ -78,6 +78,14 @@ flutter:
       fonts:
         - asset: assets/fonts/PalmerLakePrint-Regular.ttf
 
+    - family: Impact
+      fonts:
+        - asset: assets/fonts/impact.ttf
+
+    - family: AvenirLight
+      fonts:
+        - asset: assets/fonts/AvenirLight.ttf
+
       # fonts:
       #   - asset: assets/fonts/PalmerLakeScript-Regular.ttf
 
