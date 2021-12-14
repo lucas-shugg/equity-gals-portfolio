@@ -23,12 +23,12 @@ class _PortfolioState extends State<Portfolio> {
   @override
   void initState() {
     super.initState();
-    const String quoteEndPoint =
-        "https://query1.finance.yahoo.com/v7/finance/quote";
-    http
-        .get(Uri.parse(
-            "$quoteEndPoint?symbols=AASF.AX,IVV,IAA.AX,IAF.AX,AAA.AX,VAP.AX,QAU.AX"))
-        .then((value) => print(value));
+    // const String quoteEndPoint =
+    //     "https://query1.finance.yahoo.com/v7/finance/quote";
+    // http
+    //     .get(Uri.parse(
+    //         "$quoteEndPoint?symbols=AASF.AX,IVV,IAA.AX,IAF.AX,AAA.AX,VAP.AX,QAU.AX"))
+    //     .then((value) => print(value));
   }
 
   @override
