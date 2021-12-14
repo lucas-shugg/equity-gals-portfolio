@@ -4,7 +4,7 @@ import 'portfolio/portfolio_page.dart';
 
 void main() {
   // Flutter apps by default have a hash at the end of the url, (e.g portfolio.equitygal.com/#/). This removes the /#/
-  setPathUrlStrategy();
+  //setPathUrlStrategy();
   runApp(const EgpPortfolio());
 }
 
@@ -24,6 +24,7 @@ class EgpPortfolio extends StatelessWidget {
         canvasColor: const Color.fromRGBO(254, 238, 227, 1),
         textTheme: const TextTheme(
             bodyText1: defaultTextStyle, headline6: defaultTextStyle),
+        primaryColor: egpGreen,
       ),
       home: const PortfolioPage(),
     );

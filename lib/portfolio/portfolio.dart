@@ -1,6 +1,8 @@
+import 'package:equity_gals_portfolio/portfolio/portfolio_page.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
-class Portfolio extends StatelessWidget {
+class Portfolio extends StatefulWidget {
   final double maxContentWidth;
 
   const Portfolio({Key? key, required this.maxContentWidth}) : super(key: key);
@@ -14,10 +16,26 @@ class Portfolio extends StatelessWidget {
   ];
 
   @override
+  State<Portfolio> createState() => _PortfolioState();
+}
+
+class _PortfolioState extends State<Portfolio> {
+  @override
+  void initState() {
+    super.initState();
+    const String quoteEndPoint =
+        "https://query1.finance.yahoo.com/v7/finance/quote";
+    http
+        .get(Uri.parse(
+            "$quoteEndPoint?symbols=AASF.AX,IVV,IAA.AX,IAF.AX,AAA.AX,VAP.AX,QAU.AX"))
+        .then((value) => print(value));
+  }
+
+  @override
   Widget build(BuildContext context) {
     return DataTable(
       columnSpacing: 16,
-      columns: titleRow
+      columns: Portfolio.titleRow
           .map((title) =>
               DataColumn(label: Flexible(child: SelectableText(title))))
           .toList(),
@@ -53,7 +71,7 @@ class Portfolio extends StatelessWidget {
         _dataRowBuilder(
           'iShares Core Composite\nBond ETF',
           'IAF',
-          'blank',
+          null,
           'blank',
           'blank',
         ),
@@ -61,7 +79,7 @@ class Portfolio extends StatelessWidget {
           'BetaShares Aus High\nInterest Cash ETF',
           'AAA',
           'blank',
-          'blank',
+          null,
           'blank',
         ),
         _dataRowBuilder(
@@ -75,7 +93,7 @@ class Portfolio extends StatelessWidget {
           'BetaShares Gold Bullion\nETF Currency  Hedged',
           'QAU',
           'blank',
-          'blank',
+          null,
           'blank',
         ),
       ],
@@ -83,14 +101,21 @@ class Portfolio extends StatelessWidget {
   }
 
   DataRow _dataRowBuilder(String assetClass, String code,
-      String thirtyDayGrowth, String growth, String info) {
+      String? thirtyDayGrowth, String? growth, String info) {
     return DataRow(
         cells: [
-      assetClass,
-      code,
-      thirtyDayGrowth,
-      growth,
-      info,
-    ].map((data) => DataCell(SelectableText(data))).toList());
+      SelectableText(assetClass),
+      SelectableText(code),
+      thirtyDayGrowth != null
+          ? SelectableText(thirtyDayGrowth)
+          : const CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(egpGreen)),
+      growth != null
+          ? SelectableText(growth)
+          : const CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(egpGreen),
+            ),
+      SelectableText(info),
+    ].map((data) => DataCell(data)).toList());
   }
 }
