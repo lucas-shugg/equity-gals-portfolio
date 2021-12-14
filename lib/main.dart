@@ -12,7 +12,7 @@ class EgpPortfolio extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'EGP Portfolio',
+      title: 'PORTFOLIO | equity gals',
       theme: ThemeData(
         canvasColor: const Color.fromRGBO(254, 238, 227, 1),
         textTheme: const TextTheme(
