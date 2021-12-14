@@ -9,7 +9,7 @@ class Portfolio extends StatelessWidget {
     'ASSET CLASS',
     'CODE',
     '30 DAYS\nGROWTH %',
-    'GROWTH\nSINCE INCEPTION %',
+    'GROWTH SINCE\nINCEPTION %',
     'INFO'
   ];
 
