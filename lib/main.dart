@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:url_strategy/url_strategy.dart';
 import 'portfolio/portfolio_page.dart';
 
 void main() {
+  // Flutter apps by default have a hash at the end of the url, (e.g portfolio.equitygal.com/#/). This removes the /#/
+  setPathUrlStrategy();
   runApp(const EgpPortfolio());
 }
 
@@ -13,8 +16,7 @@ class EgpPortfolio extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'EGP Portfolio',
-      // This is the theme of your application.
+      title: 'PORTFOLIO | equity gals',
       theme: ThemeData(
         dataTableTheme: const DataTableThemeData(
             headingTextStyle: defaultTextStyle,
