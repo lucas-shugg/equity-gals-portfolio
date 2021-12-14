@@ -3,7 +3,7 @@ import 'package:url_strategy/url_strategy.dart';
 import 'portfolio/portfolio_page.dart';
 
 void main() {
-  // Flutter apps by default have a hash at the end of the url, (e.g portfolio.equitygal.com/#/). This removes the #
+  // Flutter apps by default have a hash at the end of the url, (e.g portfolio.equitygal.com/#/). This removes the /#/
   setPathUrlStrategy();
   runApp(const EgpPortfolio());
 }
