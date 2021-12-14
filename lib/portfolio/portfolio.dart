@@ -11,7 +11,7 @@ class Portfolio extends StatefulWidget {
     'ASSET CLASS',
     'CODE',
     '30 DAYS\nGROWTH %',
-    'GROWTH\nSINCE INCEPTION %',
+    'GROWTH SINCE\nINCEPTION %',
     'INFO'
   ];
 
