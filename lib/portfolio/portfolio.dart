@@ -23,10 +23,11 @@ class _PortfolioState extends State<Portfolio> {
   @override
   void initState() {
     super.initState();
+    const String quoteEndPoint =
+        "https://query1.finance.yahoo.com/v7/finance/quote";
     http
-        .get(Uri(
-            path:
-                "https://query2.finance.yahoo.com/v7/finance/quote?symbols=AASF.AX,IVV,IAA.AX,IAF.AX,AAA.AX,VAP.AX,QAU.AX"))
+        .get(Uri.parse(
+            "$quoteEndPoint?corsDomain=localhost.com&symbols=AASF.AX,IVV,IAA.AX,IAF.AX,AAA.AX,VAP.AX,QAU.AX"))
         .then((value) => print(value));
   }
 
