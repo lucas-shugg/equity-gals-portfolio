@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'description.dart';
 import 'header.dart';
 import 'podcast_button.dart';
-import 'portfolio.dart';
-import 'portfolio_title.dart';
+import 'data_table.dart';
+import 'title.dart';
 
 const Color egpPink = Color.fromRGBO(242, 11, 249, 1);
 
@@ -43,7 +43,10 @@ class _PortfolioPageState extends State<PortfolioPage> {
           ),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            const Header(egpGreen: egpGreen, egpPink: egpPink),
+            Header(
+                egpGreen: egpGreen,
+                egpPink: egpPink,
+                logoScale: _maxContentWidth == 520 ? 1.25 : 1),
             const PortfolioTitle(egpPink: egpPink),
             Description(
               maxContentWidth: _maxContentWidth,
