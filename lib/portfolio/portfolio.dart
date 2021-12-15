@@ -62,36 +62,35 @@ class _PortfolioState extends State<Portfolio> {
                     .toStringAsFixed(2) +
                 "%";
       }
-      setState(() {});
-    });
 
-    const historyEndpoint = "v8/finance/spark";
-    // Get the last thirty days of prices
-    http
-        .get(Uri.parse(
-            "$mainEndpoint/$historyEndpoint?symbols=$symbols&range=30d&interval=1d"))
-        .then((value) {
-      final json = jsonDecode(value.body);
-      // Get the price thirty days ago
-      List thirtyDayPrices = [
-        json["AASF.AX"]["close"][0],
-        json["IVV"]["close"][0],
-        json["IAA.AX"]["close"][0],
-        json["IEU.AX"]["close"][0],
-        json["IAF.AX"]["close"][0],
-        json["AAA.AX"]["close"][0],
-        json["VAP.AX"]["close"][0],
-        json["QAU.AX"]["close"][0],
-      ];
+      const historyEndpoint = "v8/finance/spark";
+      // Get the last thirty days of prices
+      http
+          .get(Uri.parse(
+              "$mainEndpoint/$historyEndpoint?symbols=$symbols&range=30d&interval=1d"))
+          .then((value) {
+        final json = jsonDecode(value.body);
+        // Get the price thirty days ago
+        List thirtyDayPrices = [
+          json["AASF.AX"]["close"][0],
+          json["IVV"]["close"][0],
+          json["IAA.AX"]["close"][0],
+          json["IEU.AX"]["close"][0],
+          json["IAF.AX"]["close"][0],
+          json["AAA.AX"]["close"][0],
+          json["VAP.AX"]["close"][0],
+          json["QAU.AX"]["close"][0],
+        ];
 
-      for (int i = 0; i < thirtyDayPrices.length && i < prices.length; i++) {
-        // Extract the percentage
-        thirtyDayGrowth[i] =
-            ((prices[i] - thirtyDayPrices[i]) * 100 / thirtyDayPrices[i])
-                    .toStringAsFixed(2) +
-                "%";
-      }
-      setState(() {});
+        for (int i = 0; i < thirtyDayPrices.length && i < prices.length; i++) {
+          // Extract the percentage
+          thirtyDayGrowth[i] =
+              ((prices[i] - thirtyDayPrices[i]) * 100 / thirtyDayPrices[i])
+                      .toStringAsFixed(2) +
+                  "%";
+        }
+        setState(() {});
+      });
     });
   }
 
