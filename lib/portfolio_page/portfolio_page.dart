@@ -1,3 +1,4 @@
+import 'package:equity_gals_portfolio/portfolio_page/pie_chart.dart';
 import 'package:flutter/material.dart';
 
 import 'description.dart';
@@ -62,6 +63,12 @@ class _PortfolioPageState extends State<PortfolioPage> {
                 maxContentWidth: _maxContentWidth,
               ),
             ),
+            const SizedBox(
+              height: 50,
+            ),
+            EGPieChart(
+              maxContentWidth: _maxContentWidth,
+            )
           ]),
         ),
       ),
