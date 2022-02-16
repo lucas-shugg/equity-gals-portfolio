@@ -1,4 +1,7 @@
 import 'dart:convert';
+
+import '../models/stock.dart';
+
 import 'portfolio_page.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -7,26 +10,16 @@ import 'dart:html' as html;
 
 class Portfolio extends StatefulWidget {
   final double maxContentWidth;
-
-  const Portfolio({Key? key, required this.maxContentWidth}) : super(key: key);
+  final Map<String, Stock> stocks;
+  const Portfolio(
+      {Key? key, required this.maxContentWidth, required this.stocks})
+      : super(key: key);
 
   @override
   State<Portfolio> createState() => _PortfolioState();
 }
 
 class _PortfolioState extends State<Portfolio> {
-  // 3rd Dec 2021 are when the prices have been recorded
-  Map<String, Stock> stocks = {
-    "AASF.AX": Stock('Airlie Australian\nShare Fund', 3.56),
-    "IVV.AX": Stock("IShares Core\nS&P 500 ETF", 647.84),
-    "IAA.AX": Stock("IShares Asia\n50 ETF", 109.94),
-    "IEU.AX": Stock("Europe IShares\nS&P Europe 350", 74.27),
-    "IAF.AX": Stock('iShares Core Composite\nBond ETF', 109.61),
-    "AAA.AX": Stock('BetaShares Aus High\nInterest Cash ETF', 50.06),
-    "VAP.AX": Stock('Vanguard Australian\nProperty Secs ETF', 93.82),
-    "QAU.AX": Stock('BetaShares Gold Bullion\nETF Currency Hedged', 15.75)
-  };
-
   // Stateful widgets have access to this method which can be used to run code on
   // the initial load of a widget just once.
   @override
@@ -37,7 +30,7 @@ class _PortfolioState extends State<Portfolio> {
     const String quoteEndPoint = "v6/finance/quote";
     const historyEndpoint = "v8/finance/spark";
 
-    final String symbols = stocks.keys.join(",");
+    final String symbols = widget.stocks.keys.join(",");
     // Get the current prices
     http
         .get(Uri.parse("$mainEndpoint/$quoteEndPoint?symbols=$symbols"))
@@ -47,7 +40,7 @@ class _PortfolioState extends State<Portfolio> {
 
       // Added the currentPrices to the stock object
       for (Map stockQuote in stockQuoteResponses) {
-        stocks[stockQuote["symbol"]]?.setCurrentPriceAndPercentageGrowth(
+        widget.stocks[stockQuote["symbol"]]?.setCurrentPriceAndPercentageGrowth(
             stockQuote["regularMarketPrice"]);
       }
 
@@ -60,7 +53,7 @@ class _PortfolioState extends State<Portfolio> {
         // Adds the price 30 days ago to the stock objects
         stockHistoryResponse.forEach((ticker, history) {
           if (history["close"].length >= 0) {
-            stocks[ticker]?.setPriceThirtyDaysAgo(history["close"][0]);
+            widget.stocks[ticker]?.setPriceThirtyDaysAgo(history["close"][0]);
           }
         });
 
@@ -91,7 +84,7 @@ class _PortfolioState extends State<Portfolio> {
             .map((titleWidget) =>
                 DataColumn(label: Flexible(child: titleWidget)))
             .toList(),
-        rows: stocks.entries
+        rows: widget.stocks.entries
             .map((stock) => _dataRowBuilder(
                 stock.value.name,
                 stock.key,
@@ -125,44 +118,6 @@ class _PortfolioState extends State<Portfolio> {
         },
       ),
     ].map((data) => DataCell(data)).toList());
-  }
-}
-
-class Stock {
-  final String name;
-  //final String ticker;
-  String? percentageGrowth;
-  String? thirtyDayGrowth;
-  final String info = "PDF";
-  final double priceBoughtAt;
-
-  double? currentPrice, priceThirtyDaysAgo;
-
-  Stock(this.name, this.priceBoughtAt);
-
-  void setCurrentPriceAndPercentageGrowth(double newCurrentPrice) {
-    currentPrice = newCurrentPrice;
-
-    percentageGrowth =
-        _calculateGrowthPercentage(newCurrentPrice, priceBoughtAt)
-                .toStringAsFixed(2) +
-            "%";
-  }
-
-  void setPriceThirtyDaysAgo(double newPriceThirtyDaysAgo) {
-    priceThirtyDaysAgo = newPriceThirtyDaysAgo;
-
-    if (currentPrice == null) {
-      return;
-    }
-    thirtyDayGrowth =
-        _calculateGrowthPercentage(currentPrice!, newPriceThirtyDaysAgo)
-                .toStringAsFixed(2) +
-            "%";
-  }
-
-  double _calculateGrowthPercentage(double currentPrice, double previousPrice) {
-    return (currentPrice - previousPrice) * 100 / previousPrice;
   }
 }
 
