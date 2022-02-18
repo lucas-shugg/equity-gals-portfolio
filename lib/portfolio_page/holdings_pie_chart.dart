@@ -27,37 +27,34 @@ class PieChartState extends State<HoldingsPieChart> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(32.0),
-      child: SizedBox(
-        width: 500,
-        height: 500,
-        child: PieChart(
-          PieChartData(
-            pieTouchData: PieTouchData(
-                touchCallback: (FlTouchEvent event, pieTouchResponse) {
-              setState(() {
-                if (!event.isInterestedForInteractions ||
-                    pieTouchResponse == null ||
-                    pieTouchResponse.touchedSection == null) {
-                  widget.stockHoveredOver.value = null;
-                  return;
-                }
-                // Assumes AX region, would need to refactor if expanded to global
-                // regions.
-                widget.stockHoveredOver.value = pieTouchResponse
-                    .touchedSection?.touchedSection?.title
-                    .split("\n")
-                    .first;
-              });
-            }),
-            borderData: FlBorderData(
-              show: false,
-            ),
-            sectionsSpace: 0,
-            centerSpaceRadius: 30,
-            sections: generateSections(),
+    return SizedBox(
+      width: 500,
+      height: 500,
+      child: PieChart(
+        PieChartData(
+          pieTouchData: PieTouchData(
+              touchCallback: (FlTouchEvent event, pieTouchResponse) {
+            setState(() {
+              if (!event.isInterestedForInteractions ||
+                  pieTouchResponse == null ||
+                  pieTouchResponse.touchedSection == null) {
+                widget.stockHoveredOver.value = null;
+                return;
+              }
+              // Assumes AX region, would need to refactor if expanded to global
+              // regions.
+              widget.stockHoveredOver.value = pieTouchResponse
+                  .touchedSection?.touchedSection?.title
+                  .split("\n")
+                  .first;
+            });
+          }),
+          borderData: FlBorderData(
+            show: false,
           ),
+          sectionsSpace: 0,
+          centerSpaceRadius: 30,
+          sections: generateSections(),
         ),
       ),
     );

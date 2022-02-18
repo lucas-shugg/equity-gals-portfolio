@@ -86,45 +86,47 @@ class _PortfolioPageState extends State<PortfolioPage> {
     }
 
     return Scaffold(
-        body: SingleChildScrollView(
-      child: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: _maxContentWidth,
+      body: SingleChildScrollView(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: _maxContentWidth,
+            ),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Header(
+                      egpGreen: egpGreen,
+                      egpPink: egpPink,
+                      logoScale: _maxContentWidth == 520 ? 1.25 : 1),
+                  const PortfolioTitle(egpPink: egpPink),
+                  Description(
+                    maxContentWidth: _maxContentWidth,
+                  ),
+                  const PodcastButton(egpGreen: egpGreen),
+                  ConditionalParentWidget(
+                    condition: _maxContentWidth == 520,
+                    conditionalBuilder: (child) => SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: child,
+                    ),
+                    child: Portfolio(
+                      stockHoveredOver: _stockHoveredOver,
+                      maxContentWidth: _maxContentWidth,
+                      // The portfolio table only needs a map of stocks
+                      stocks: portfolio
+                          .map((key, value) => MapEntry(key, value.stock)),
+                    ),
+                  ),
+                  HoldingsPieChart(
+                    portfolio: portfolio,
+                    stockHoveredOver: _stockHoveredOver,
+                  )
+                ]),
           ),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Header(
-                egpGreen: egpGreen,
-                egpPink: egpPink,
-                logoScale: _maxContentWidth == 520 ? 1.25 : 1),
-            const PortfolioTitle(egpPink: egpPink),
-            Description(
-              maxContentWidth: _maxContentWidth,
-            ),
-            const PodcastButton(egpGreen: egpGreen),
-            ConditionalParentWidget(
-              condition: _maxContentWidth == 520,
-              conditionalBuilder: (child) => SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: child,
-              ),
-              child: Portfolio(
-                stockHoveredOver: _stockHoveredOver,
-                maxContentWidth: _maxContentWidth,
-                // The portfolio table only needs a map of stocks
-                stocks:
-                    portfolio.map((key, value) => MapEntry(key, value.stock)),
-              ),
-            ),
-            HoldingsPieChart(
-              portfolio: portfolio,
-              stockHoveredOver: _stockHoveredOver,
-            )
-          ]),
         ),
       ),
-    ));
+    );
   }
 }
 

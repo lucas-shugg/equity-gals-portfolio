@@ -90,19 +90,19 @@ class _PortfolioState extends State<Portfolio> {
           })
     ];
     return DataTable(
-        columnSpacing: 0,
-        columns: titleRow
-            .map((titleWidget) =>
-                DataColumn(label: Flexible(child: titleWidget)))
-            .toList(),
-        rows: widget.stocks.entries
-            .map((stock) => _dataRowBuilder(
-                stock.value.name,
-                stock.key,
-                stock.value.thirtyDayGrowth,
-                stock.value.percentageGrowth,
-                stock.value.info))
-            .toList());
+      columnSpacing: 0,
+      columns: titleRow
+          .map((titleWidget) => DataColumn(label: Flexible(child: titleWidget)))
+          .toList(),
+      rows: widget.stocks.entries
+          .map((stock) => _dataRowBuilder(
+              stock.value.name,
+              stock.key,
+              stock.value.thirtyDayGrowth,
+              stock.value.percentageGrowth,
+              stock.value.info))
+          .toList(),
+    );
   }
 
   DataRow _dataRowBuilder(String name, String code, String? thirtyDayGrowth,
