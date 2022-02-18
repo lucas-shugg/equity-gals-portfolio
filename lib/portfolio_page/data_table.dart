@@ -11,8 +11,13 @@ import 'dart:html' as html;
 class Portfolio extends StatefulWidget {
   final double maxContentWidth;
   final Map<String, Stock> stocks;
+  final ValueNotifier<String?> stockHoveredOver;
+
   const Portfolio(
-      {Key? key, required this.maxContentWidth, required this.stocks})
+      {Key? key,
+      required this.maxContentWidth,
+      required this.stocks,
+      required this.stockHoveredOver})
       : super(key: key);
 
   @override
@@ -25,6 +30,12 @@ class _PortfolioState extends State<Portfolio> {
   @override
   void initState() {
     super.initState();
+
+    // Rebuild the Datatable when the onHoveredStockChanges to reflect the updated
+    // highlight state of the data table.
+    widget.stockHoveredOver.addListener(() {
+      setState(() {});
+    });
 
     const String mainEndpoint = "https://equity-gals-bff.herokuapp.com/yahoo";
     const String quoteEndPoint = "v6/finance/quote";
@@ -79,7 +90,7 @@ class _PortfolioState extends State<Portfolio> {
           })
     ];
     return DataTable(
-        columnSpacing: 16,
+        columnSpacing: 0,
         columns: titleRow
             .map((titleWidget) =>
                 DataColumn(label: Flexible(child: titleWidget)))
@@ -94,12 +105,44 @@ class _PortfolioState extends State<Portfolio> {
             .toList());
   }
 
-  DataRow _dataRowBuilder(String assetClass, String code,
-      String? thirtyDayGrowth, String? growth, String info) {
+  DataRow _dataRowBuilder(String name, String code, String? thirtyDayGrowth,
+      String? growth, String info) {
+    void _onTap() {
+      widget.stockHoveredOver.value = code.split(".").first;
+    }
+
+    void _onHover(bool isHovering) {
+      if (isHovering) {
+        _onTap();
+      } else {
+        widget.stockHoveredOver.value = null;
+      }
+    }
+
+    bool isStockBeingHoveredOver =
+        widget.stockHoveredOver.value == code.split(".").first;
+
     return DataRow(
         cells: [
-      SelectableText(assetClass),
-      SelectableText(code.split(".").first),
+      InkWell(
+        onTap: _onTap,
+        onHover: _onHover,
+        child: SelectableText(
+          name,
+          style: isStockBeingHoveredOver
+              ? highlightedText.copyWith(fontStyle: FontStyle.italic)
+              : null,
+        ),
+      ),
+      InkWell(
+          onTap: _onTap,
+          onHover: _onHover,
+          child: SelectableText(
+            code.split(".").first,
+            style: isStockBeingHoveredOver
+                ? highlightedText.copyWith(fontStyle: FontStyle.italic)
+                : null,
+          )),
       thirtyDayGrowth != null
           ? SelectableText(thirtyDayGrowth)
           : const CircularProgressIndicator(

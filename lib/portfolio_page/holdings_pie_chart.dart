@@ -1,21 +1,34 @@
+import 'package:equity_gals_portfolio/portfolio_page/portfolio_page.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import '../models/portfolio_holding.dart';
 
 class HoldingsPieChart extends StatefulWidget {
-  const HoldingsPieChart({Key? key, required this.portfolio}) : super(key: key);
+  const HoldingsPieChart(
+      {Key? key, required this.portfolio, required this.stockHoveredOver})
+      : super(key: key);
   final Map<String, PortfolioHolding> portfolio;
+  final ValueNotifier<String?> stockHoveredOver;
+
   @override
   State<HoldingsPieChart> createState() => PieChartState();
 }
 
 class PieChartState extends State<HoldingsPieChart> {
-  int? touchedIndex;
+  @override
+  void initState() {
+    super.initState();
+    // Rebuild the widget when a stock is hovered over to apply highlighting and
+    // growth to widget
+    widget.stockHoveredOver.addListener(() {
+      setState(() {});
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(64.0),
+      padding: const EdgeInsets.all(32.0),
       child: SizedBox(
         width: 500,
         height: 500,
@@ -27,11 +40,15 @@ class PieChartState extends State<HoldingsPieChart> {
                 if (!event.isInterestedForInteractions ||
                     pieTouchResponse == null ||
                     pieTouchResponse.touchedSection == null) {
-                  touchedIndex = null;
+                  widget.stockHoveredOver.value = null;
                   return;
                 }
-                touchedIndex =
-                    pieTouchResponse.touchedSection!.touchedSectionIndex;
+                // Assumes AX region, would need to refactor if expanded to global
+                // regions.
+                widget.stockHoveredOver.value = pieTouchResponse
+                    .touchedSection?.touchedSection?.title
+                    .split("\n")
+                    .first;
               });
             }),
             borderData: FlBorderData(
@@ -59,33 +76,44 @@ class PieChartState extends State<HoldingsPieChart> {
 
     // Get list and sort them by holding percentage
     final portfolioHoldingsList = widget.portfolio.entries.toList();
-    portfolioHoldingsList.sort((a, b) => a.value.holdingWeightAsPercentage
-        .compareTo(b.value.holdingWeightAsPercentage));
+    portfolioHoldingsList.sort((a, b) {
+      var weightComparison = a.value.holdingWeightAsPercentage
+          .compareTo(b.value.holdingWeightAsPercentage);
+      // They are equal holding weight, use code to split difference
+      if (weightComparison == 0) {
+        // Code compare
+        return a.key.compareTo(b.key);
+      }
+      return weightComparison;
+    });
 
     int sectionNumber = 0;
     // Generate the sections
     return portfolioHoldingsList.map(
       (portfolioHolding) {
         // Using the section number before it is incremented gives us the section index
-        final isTouched = sectionNumber == touchedIndex;
-        final fontSize = isTouched ? 25.0 : 20.0;
-        final radius = isTouched ? 250.0 : 200.0;
+        final isHovered = widget.stockHoveredOver.value ==
+            portfolioHolding.key.split(".").first;
+        final fontSize = isHovered ? 25.0 : 20.0;
+        final radius = isHovered ? 230.0 : 190.0;
 
         sectionNumber += 1;
 
-        // Used to fan out the patterns so the names don't clash, fairly aribratry calucation used that
+        // Used to fan out the patterns so the names don't clash, fairly arbitrary calculation used that
         // works for the current number of stocks
         double titlePosition = (length + 3 - sectionNumber) / (length + 4);
 
         return PieChartSectionData(
           value: portfolioHolding.value.holdingWeightAsPercentage,
           title:
-              "${portfolioHolding.key}\n${portfolioHolding.value.holdingWeightAsPercentage}%",
+              "${portfolioHolding.key.split(".").first}\n${portfolioHolding.value.holdingWeightAsPercentage}%",
           radius: radius,
-          color: Colors.teal[(sectionNumber + 1) *
-              100], // Inside the bracket becomes 100, 200 ..., 900
+          // Inside the bracket becomes 200, 200 ..., 900
+          color: Colors.teal[(sectionNumber + 1) * 100],
           titlePositionPercentageOffset: titlePosition,
-          titleStyle: TextStyle(color: Colors.white, fontSize: fontSize),
+          titleStyle: isHovered
+              ? highlightedText.copyWith(fontSize: fontSize)
+              : TextStyle(color: Colors.white, fontSize: fontSize),
         );
       },
     ).toList();

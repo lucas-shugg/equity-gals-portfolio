@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../models/portfolio_holding.dart';
 import 'holdings_pie_chart.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +15,11 @@ const Color egpPink = Color.fromRGBO(242, 11, 249, 1);
 
 const Color egpGreen = Color.fromRGBO(56, 88, 78, 1);
 
+const highlightedText = TextStyle(
+  fontWeight: FontWeight.bold,
+  color: egpPink,
+);
+
 class PortfolioPage extends StatefulWidget {
   const PortfolioPage({Key? key}) : super(key: key);
 
@@ -21,7 +28,7 @@ class PortfolioPage extends StatefulWidget {
 }
 
 class _PortfolioPageState extends State<PortfolioPage> {
-  double _maxContentWidth = 980;
+  static double _maxContentWidth = 980;
   // 3rd Dec 2021 are when the prices have been recorded
   // This is our core data which we pass around use on this page
   Map<String, PortfolioHolding> portfolio = {
@@ -29,17 +36,28 @@ class _PortfolioPageState extends State<PortfolioPage> {
       Stock('Airlie Australian\nShare Fund', 3.56),
       0.35,
     ),
+    "VAP.AX": PortfolioHolding(
+      Stock('Vanguard Australian\nProperty Secs ETF', 93.82),
+      0.13,
+    ),
     "IVV.AX": PortfolioHolding(
       Stock("IShares Core\nS&P 500 ETF", 647.84),
+      0.13,
+    ),
+    "IEU.AX": PortfolioHolding(
+      Stock("Europe IShares\nS&P Europe 350", 74.27),
       0.13,
     ),
     "IAA.AX": PortfolioHolding(
       Stock("IShares Asia\n50 ETF", 109.94),
       0.13,
     ),
-    "IEU.AX": PortfolioHolding(
-      Stock("Europe IShares\nS&P Europe 350", 74.27),
-      0.13,
+    "QAU.AX": PortfolioHolding(
+      Stock(
+        'BetaShares Gold Bullion\nETF Currency Hedged',
+        15.75,
+      ),
+      0.05,
     ),
     "IAF.AX": PortfolioHolding(
       Stock('iShares Core Composite\nBond ETF', 109.61),
@@ -49,17 +67,12 @@ class _PortfolioPageState extends State<PortfolioPage> {
       Stock('BetaShares Aus High\nInterest Cash ETF', 50.06),
       0.05,
     ),
-    "VAP.AX": PortfolioHolding(
-      Stock('Vanguard Australian\nProperty Secs ETF', 93.82),
-      0.13,
-    ),
-    "QAU.AX": PortfolioHolding(
-        Stock(
-          'BetaShares Gold Bullion\nETF Currency Hedged',
-          15.75,
-        ),
-        0.05),
   };
+  // Stock that the mouse is over, either on the pie chart or table
+  // Used to highlight the pie chart and table so its easy to correlate the values.
+  // Matches just on ticker not code (e.g Code QAU.AX is only compared using the ticker QAU)
+  final _stockHoveredOver = ValueNotifier<String?>(null);
+
   @override
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
@@ -99,13 +112,17 @@ class _PortfolioPageState extends State<PortfolioPage> {
                 child: child,
               ),
               child: Portfolio(
+                stockHoveredOver: _stockHoveredOver,
                 maxContentWidth: _maxContentWidth,
                 // The portfolio table only needs a map of stocks
                 stocks:
                     portfolio.map((key, value) => MapEntry(key, value.stock)),
               ),
             ),
-            HoldingsPieChart(portfolio: portfolio)
+            HoldingsPieChart(
+              portfolio: portfolio,
+              stockHoveredOver: _stockHoveredOver,
+            )
           ]),
         ),
       ),
