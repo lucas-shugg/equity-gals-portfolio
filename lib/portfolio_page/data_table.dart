@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import '../models/stock.dart';
+import '../models/portfolio_holding.dart';
 
 import 'portfolio_page.dart';
 import 'package:flutter/material.dart';
@@ -10,21 +10,27 @@ import 'dart:html' as html;
 
 class Portfolio extends StatefulWidget {
   final double maxContentWidth;
-  final Map<String, Stock> stocks;
+  final Map<String, PortfolioHolding> portfolio;
   final ValueNotifier<String?> stockHoveredOver;
+  final ValueNotifier<double?> totalGrowth;
 
-  const Portfolio(
-      {Key? key,
-      required this.maxContentWidth,
-      required this.stocks,
-      required this.stockHoveredOver})
-      : super(key: key);
+  const Portfolio({
+    Key? key,
+    required this.maxContentWidth,
+    required this.portfolio,
+    required this.stockHoveredOver,
+    required this.totalGrowth,
+  }) : super(key: key);
 
   @override
   State<Portfolio> createState() => _PortfolioState();
 }
 
 class _PortfolioState extends State<Portfolio> {
+  void stockBeingHoveredOverListener() {
+    setState(() {});
+  }
+
   // Stateful widgets have access to this method which can be used to run code on
   // the initial load of a widget just once.
   @override
@@ -33,15 +39,13 @@ class _PortfolioState extends State<Portfolio> {
 
     // Rebuild the Datatable when the onHoveredStockChanges to reflect the updated
     // highlight state of the data table.
-    widget.stockHoveredOver.addListener(() {
-      setState(() {});
-    });
+    widget.stockHoveredOver.addListener(stockBeingHoveredOverListener);
 
     const String mainEndpoint = "https://equity-gals-bff.herokuapp.com/yahoo";
     const String quoteEndPoint = "v6/finance/quote";
     const historyEndpoint = "v8/finance/spark";
 
-    final String symbols = widget.stocks.keys.join(",");
+    final String symbols = widget.portfolio.keys.join(",");
     // Get the current prices
     http
         .get(Uri.parse("$mainEndpoint/$quoteEndPoint?symbols=$symbols"))
@@ -51,8 +55,9 @@ class _PortfolioState extends State<Portfolio> {
 
       // Added the currentPrices to the stock object
       for (Map stockQuote in stockQuoteResponses) {
-        widget.stocks[stockQuote["symbol"]]?.setCurrentPriceAndPercentageGrowth(
-            stockQuote["regularMarketPrice"]);
+        widget.portfolio[stockQuote["symbol"]]?.stock
+            .setCurrentPriceAndPercentageGrowth(
+                stockQuote["regularMarketPrice"]);
       }
 
       // Get the last thirty days of prices
@@ -64,14 +69,35 @@ class _PortfolioState extends State<Portfolio> {
         // Adds the price 30 days ago to the stock objects
         stockHistoryResponse.forEach((ticker, history) {
           if (history["close"].length >= 0) {
-            widget.stocks[ticker]?.setPriceThirtyDaysAgo(history["close"][0]);
+            widget.portfolio[ticker]?.stock
+                .setPriceThirtyDaysAgo(history["close"][0]);
           }
         });
+
+        widget.totalGrowth.value = _calculateTotalGrowth();
 
         // Rebuilds the widget now we have the data
         setState(() {});
       });
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    widget.stockHoveredOver.removeListener(stockBeingHoveredOverListener);
+  }
+
+  double? _calculateTotalGrowth() {
+    double growth = 0;
+    for (PortfolioHolding holding in widget.portfolio.values) {
+      if (holding.stock.percentageGrowth == null) {
+        // If any are null we dip bc calc will be wrong
+        return null;
+      }
+      growth += holding.holdingWeight * holding.stock.percentageGrowth!;
+    }
+    return growth;
   }
 
   @override
@@ -90,17 +116,17 @@ class _PortfolioState extends State<Portfolio> {
           })
     ];
     return DataTable(
-      columnSpacing: 0,
+      columnSpacing: 16,
       columns: titleRow
           .map((titleWidget) => DataColumn(label: Flexible(child: titleWidget)))
           .toList(),
-      rows: widget.stocks.entries
-          .map((stock) => _dataRowBuilder(
-              stock.value.name,
-              stock.key,
-              stock.value.thirtyDayGrowth,
-              stock.value.percentageGrowth,
-              stock.value.info))
+      rows: widget.portfolio.entries
+          .map((portfolioHolding) => _dataRowBuilder(
+              portfolioHolding.value.stock.name,
+              portfolioHolding.key,
+              portfolioHolding.value.stock.thirtyDayGrowth,
+              portfolioHolding.value.stock.percentageGrowthAsString,
+              portfolioHolding.value.stock.info))
           .toList(),
     );
   }

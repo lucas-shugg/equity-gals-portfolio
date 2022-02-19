@@ -1,21 +1,21 @@
 class Stock {
   final String name;
-  String? percentageGrowth;
+  double? percentageGrowth;
   String? thirtyDayGrowth;
   final String info = "PDF";
   final double priceBoughtAt;
 
   double? currentPrice, priceThirtyDaysAgo;
-
+  String? get percentageGrowthAsString => percentageGrowth != null
+      ? percentageGrowth!.toStringAsFixed(2) + "%"
+      : null;
   Stock(this.name, this.priceBoughtAt);
 
   void setCurrentPriceAndPercentageGrowth(double newCurrentPrice) {
     currentPrice = newCurrentPrice;
 
     percentageGrowth =
-        _calculateGrowthPercentage(newCurrentPrice, priceBoughtAt)
-                .toStringAsFixed(2) +
-            "%";
+        _calculateGrowthPercentage(newCurrentPrice, priceBoughtAt);
   }
 
   void setPriceThirtyDaysAgo(double newPriceThirtyDaysAgo) {

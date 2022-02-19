@@ -1,3 +1,5 @@
+import 'package:equity_gals_portfolio/portfolio_page/total_growth.dart';
+
 import '../models/portfolio_holding.dart';
 import 'holdings_pie_chart.dart';
 import 'package:flutter/material.dart';
@@ -10,12 +12,13 @@ import '../models/stock.dart';
 import 'title.dart';
 
 const Color egpPink = Color.fromRGBO(242, 11, 249, 1);
+const Color egpPinkAccent = Color.fromRGBO(255, 77, 178, 1);
 
 const Color egpGreen = Color.fromRGBO(56, 88, 78, 1);
 
 const highlightedText = TextStyle(
   fontWeight: FontWeight.bold,
-  color: egpPink,
+  color: egpPinkAccent,
 );
 
 class PortfolioPage extends StatefulWidget {
@@ -71,6 +74,8 @@ class _PortfolioPageState extends State<PortfolioPage> {
   // Matches just on ticker not code (e.g Code QAU.AX is only compared using the ticker QAU)
   final _stockHoveredOver = ValueNotifier<String?>(null);
 
+  final _totalGrowth = ValueNotifier<double?>(null);
+
   @override
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
@@ -104,6 +109,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
                     maxContentWidth: _maxContentWidth,
                   ),
                   const PodcastButton(egpGreen: egpGreen),
+                  TotalGrowth(totalGrowth: _totalGrowth),
                   ConditionalParentWidget(
                     condition: _maxContentWidth == 520,
                     conditionalBuilder: (child) => SingleChildScrollView(
@@ -113,9 +119,9 @@ class _PortfolioPageState extends State<PortfolioPage> {
                     child: Portfolio(
                       stockHoveredOver: _stockHoveredOver,
                       maxContentWidth: _maxContentWidth,
+                      totalGrowth: _totalGrowth,
                       // The portfolio table only needs a map of stocks
-                      stocks: portfolio
-                          .map((key, value) => MapEntry(key, value.stock)),
+                      portfolio: portfolio,
                     ),
                   ),
                   HoldingsPieChart(

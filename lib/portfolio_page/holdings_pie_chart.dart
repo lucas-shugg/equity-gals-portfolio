@@ -15,47 +15,75 @@ class HoldingsPieChart extends StatefulWidget {
 }
 
 class PieChartState extends State<HoldingsPieChart> {
+  void stockBeingHoveredOverListener() {
+    setState(() {});
+  }
+
   @override
   void initState() {
     super.initState();
     // Rebuild the widget when a stock is hovered over to apply highlighting and
     // growth to widget
-    widget.stockHoveredOver.addListener(() {
-      setState(() {});
-    });
+    widget.stockHoveredOver.addListener(stockBeingHoveredOverListener);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    widget.stockHoveredOver.removeListener(stockBeingHoveredOverListener);
   }
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 500,
-      height: 500,
-      child: PieChart(
-        PieChartData(
-          pieTouchData: PieTouchData(
-              touchCallback: (FlTouchEvent event, pieTouchResponse) {
-            setState(() {
-              if (!event.isInterestedForInteractions ||
-                  pieTouchResponse == null ||
-                  pieTouchResponse.touchedSection == null) {
-                widget.stockHoveredOver.value = null;
-                return;
-              }
-              // Assumes AX region, would need to refactor if expanded to global
-              // regions.
-              widget.stockHoveredOver.value = pieTouchResponse
-                  .touchedSection?.touchedSection?.title
-                  .split("\n")
-                  .first;
-            });
-          }),
-          borderData: FlBorderData(
-            show: false,
+    return FittedBox(
+      fit: BoxFit.fitWidth,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text("Portfolio\nWeight",
+                style: Theme.of(context)
+                    .textTheme
+                    .headline2
+                    ?.apply(fontFamily: 'Impact', color: egpPink)),
           ),
-          sectionsSpace: 0,
-          centerSpaceRadius: 30,
-          sections: generateSections(),
-        ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SizedBox(
+              width: 500,
+              height: 500,
+              child: PieChart(
+                PieChartData(
+                  pieTouchData: PieTouchData(
+                      touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                    setState(() {
+                      if (!event.isInterestedForInteractions ||
+                          pieTouchResponse == null ||
+                          pieTouchResponse.touchedSection == null) {
+                        widget.stockHoveredOver.value = null;
+                        return;
+                      }
+                      // Assumes AX region, would need to refactor if expanded to global
+                      // regions.
+                      widget.stockHoveredOver.value = pieTouchResponse
+                          .touchedSection?.touchedSection?.title
+                          .split("\n")
+                          .first;
+                    });
+                  }),
+                  borderData: FlBorderData(
+                    show: false,
+                  ),
+                  sectionsSpace: 0,
+                  centerSpaceRadius: 30,
+                  sections: generateSections(),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
