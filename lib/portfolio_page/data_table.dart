@@ -1,4 +1,7 @@
 import 'dart:convert';
+
+import '../models/portfolio_holding.dart';
+
 import 'portfolio_page.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -7,25 +10,26 @@ import 'dart:html' as html;
 
 class Portfolio extends StatefulWidget {
   final double maxContentWidth;
+  final Map<String, PortfolioHolding> portfolio;
+  final ValueNotifier<String?> stockHoveredOver;
+  final ValueNotifier<double?> totalGrowth;
 
-  const Portfolio({Key? key, required this.maxContentWidth}) : super(key: key);
+  const Portfolio({
+    Key? key,
+    required this.maxContentWidth,
+    required this.portfolio,
+    required this.stockHoveredOver,
+    required this.totalGrowth,
+  }) : super(key: key);
 
   @override
   State<Portfolio> createState() => _PortfolioState();
 }
 
 class _PortfolioState extends State<Portfolio> {
-  // 3rd Dec 2021 are when the prices have been recorded
-  Map<String, Stock> stocks = {
-    "AASF.AX": Stock('Airlie Australian\nShare Fund', 3.56),
-    "IVV.AX": Stock("IShares Core\nS&P 500 ETF", 647.84),
-    "IAA.AX": Stock("IShares Asia\n50 ETF", 109.94),
-    "IEU.AX": Stock("Europe IShares\nS&P Europe 350", 74.27),
-    "IAF.AX": Stock('iShares Core Composite\nBond ETF', 109.61),
-    "AAA.AX": Stock('BetaShares Aus High\nInterest Cash ETF', 50.06),
-    "VAP.AX": Stock('Vanguard Australian\nProperty Secs ETF', 93.82),
-    "QAU.AX": Stock('BetaShares Gold Bullion\nETF Currency Hedged', 15.75)
-  };
+  void stockBeingHoveredOverListener() {
+    setState(() {});
+  }
 
   // Stateful widgets have access to this method which can be used to run code on
   // the initial load of a widget just once.
@@ -33,11 +37,15 @@ class _PortfolioState extends State<Portfolio> {
   void initState() {
     super.initState();
 
+    // Rebuild the Datatable when the onHoveredStockChanges to reflect the updated
+    // highlight state of the data table.
+    widget.stockHoveredOver.addListener(stockBeingHoveredOverListener);
+
     const String mainEndpoint = "https://equity-gals-bff.herokuapp.com/yahoo";
     const String quoteEndPoint = "v6/finance/quote";
     const historyEndpoint = "v8/finance/spark";
 
-    final String symbols = stocks.keys.join(",");
+    final String symbols = widget.portfolio.keys.join(",");
     // Get the current prices
     http
         .get(Uri.parse("$mainEndpoint/$quoteEndPoint?symbols=$symbols"))
@@ -47,8 +55,9 @@ class _PortfolioState extends State<Portfolio> {
 
       // Added the currentPrices to the stock object
       for (Map stockQuote in stockQuoteResponses) {
-        stocks[stockQuote["symbol"]]?.setCurrentPriceAndPercentageGrowth(
-            stockQuote["regularMarketPrice"]);
+        widget.portfolio[stockQuote["symbol"]]?.stock
+            .setCurrentPriceAndPercentageGrowth(
+                stockQuote["regularMarketPrice"]);
       }
 
       // Get the last thirty days of prices
@@ -60,14 +69,35 @@ class _PortfolioState extends State<Portfolio> {
         // Adds the price 30 days ago to the stock objects
         stockHistoryResponse.forEach((ticker, history) {
           if (history["close"].length >= 0) {
-            stocks[ticker]?.setPriceThirtyDaysAgo(history["close"][0]);
+            widget.portfolio[ticker]?.stock
+                .setPriceThirtyDaysAgo(history["close"][0]);
           }
         });
+
+        widget.totalGrowth.value = _calculateTotalGrowth();
 
         // Rebuilds the widget now we have the data
         setState(() {});
       });
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    widget.stockHoveredOver.removeListener(stockBeingHoveredOverListener);
+  }
+
+  double? _calculateTotalGrowth() {
+    double growth = 0;
+    for (PortfolioHolding holding in widget.portfolio.values) {
+      if (holding.stock.percentageGrowth == null) {
+        // If any are null we dip bc calc will be wrong
+        return null;
+      }
+      growth += holding.holdingWeight * holding.stock.percentageGrowth!;
+    }
+    return growth;
   }
 
   @override
@@ -86,27 +116,59 @@ class _PortfolioState extends State<Portfolio> {
           })
     ];
     return DataTable(
-        columnSpacing: 16,
-        columns: titleRow
-            .map((titleWidget) =>
-                DataColumn(label: Flexible(child: titleWidget)))
-            .toList(),
-        rows: stocks.entries
-            .map((stock) => _dataRowBuilder(
-                stock.value.name,
-                stock.key,
-                stock.value.thirtyDayGrowth,
-                stock.value.percentageGrowth,
-                stock.value.info))
-            .toList());
+      columnSpacing: 16,
+      columns: titleRow
+          .map((titleWidget) => DataColumn(label: Flexible(child: titleWidget)))
+          .toList(),
+      rows: widget.portfolio.entries
+          .map((portfolioHolding) => _dataRowBuilder(
+              portfolioHolding.value.stock.name,
+              portfolioHolding.key,
+              portfolioHolding.value.stock.thirtyDayGrowth,
+              portfolioHolding.value.stock.percentageGrowthAsString,
+              portfolioHolding.value.stock.info))
+          .toList(),
+    );
   }
 
-  DataRow _dataRowBuilder(String assetClass, String code,
-      String? thirtyDayGrowth, String? growth, String info) {
+  DataRow _dataRowBuilder(String name, String code, String? thirtyDayGrowth,
+      String? growth, String info) {
+    void _onTap() {
+      widget.stockHoveredOver.value = code.split(".").first;
+    }
+
+    void _onHover(bool isHovering) {
+      if (isHovering) {
+        _onTap();
+      } else {
+        widget.stockHoveredOver.value = null;
+      }
+    }
+
+    bool isStockBeingHoveredOver =
+        widget.stockHoveredOver.value == code.split(".").first;
+
     return DataRow(
         cells: [
-      SelectableText(assetClass),
-      SelectableText(code.split(".").first),
+      InkWell(
+        onTap: _onTap,
+        onHover: _onHover,
+        child: SelectableText(
+          name,
+          style: isStockBeingHoveredOver
+              ? highlightedText.copyWith(fontStyle: FontStyle.italic)
+              : null,
+        ),
+      ),
+      InkWell(
+          onTap: _onTap,
+          onHover: _onHover,
+          child: SelectableText(
+            code.split(".").first,
+            style: isStockBeingHoveredOver
+                ? highlightedText.copyWith(fontStyle: FontStyle.italic)
+                : null,
+          )),
       thirtyDayGrowth != null
           ? SelectableText(thirtyDayGrowth)
           : const CircularProgressIndicator(
@@ -125,44 +187,6 @@ class _PortfolioState extends State<Portfolio> {
         },
       ),
     ].map((data) => DataCell(data)).toList());
-  }
-}
-
-class Stock {
-  final String name;
-  //final String ticker;
-  String? percentageGrowth;
-  String? thirtyDayGrowth;
-  final String info = "PDF";
-  final double priceBoughtAt;
-
-  double? currentPrice, priceThirtyDaysAgo;
-
-  Stock(this.name, this.priceBoughtAt);
-
-  void setCurrentPriceAndPercentageGrowth(double newCurrentPrice) {
-    currentPrice = newCurrentPrice;
-
-    percentageGrowth =
-        _calculateGrowthPercentage(newCurrentPrice, priceBoughtAt)
-                .toStringAsFixed(2) +
-            "%";
-  }
-
-  void setPriceThirtyDaysAgo(double newPriceThirtyDaysAgo) {
-    priceThirtyDaysAgo = newPriceThirtyDaysAgo;
-
-    if (currentPrice == null) {
-      return;
-    }
-    thirtyDayGrowth =
-        _calculateGrowthPercentage(currentPrice!, newPriceThirtyDaysAgo)
-                .toStringAsFixed(2) +
-            "%";
-  }
-
-  double _calculateGrowthPercentage(double currentPrice, double previousPrice) {
-    return (currentPrice - previousPrice) * 100 / previousPrice;
   }
 }
 
